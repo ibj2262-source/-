@@ -1,0 +1,8 @@
+{
+  "name": "심금의 추억뮤직스토리",
+  "description": "음악과 영상으로 기록하는 개인 추억 저장소 및 뮤직 스토리 웹사이트",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

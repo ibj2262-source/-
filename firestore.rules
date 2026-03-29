@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: posts
+    // Document ID: auto-generated
+    // Fields:
+    //   - title: string (required, 1-100 chars)
+    //   - content: string (required, 1-5000 chars)
+    //   - mediaUrl: string (required, valid URL)
+    //   - mediaType: string (required, enum: image, video, audio)
+    //   - themeColor: string (optional)
+    //   - fontFamily: string (optional)
+    //   - authorUid: string (required, immutable)
+    //   - createdAt: timestamp (required, immutable)
+    //   - updatedAt: timestamp (optional)
+    //
+    // Collection: settings
+    // Document ID: global
+    // Fields:
+    //   - siteTitle: string
+    //   - mainQuote: string
+    //   - themeColor: string
+    //   - fontFamily: string
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "ibj2262@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isValidPost(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 5000 &&
+             data.mediaUrl is string && data.mediaUrl.matches("^https?://.*") &&
+             data.mediaType in ['image', 'video', 'audio'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /posts/{postId} {
+      allow read: if true; // Publicly readable
+      allow create: if isAuthenticated() && isValidPost(request.resource.data) && 
+                      request.resource.data.authorUid == request.auth.uid;
+      allow update: if isAuthenticated() && (isOwner(resource.data.authorUid) || isAdmin()) && 
+                      isValidPost(request.resource.data) &&
+                      request.resource.data.authorUid == resource.data.authorUid;
+      allow delete: if isAuthenticated() && (isOwner(resource.data.authorUid) || isAdmin());
+    }
+
+    match /settings/global {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

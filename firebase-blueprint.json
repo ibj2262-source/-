@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "post": {
+      "title": "Music Story Post",
+      "description": "A post containing music, video, or image with a story.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the post" },
+        "content": { "type": "string", "description": "Main text content" },
+        "mediaUrl": { "type": "string", "description": "URL of the uploaded media (image/video/audio)" },
+        "mediaType": { "type": "string", "enum": ["image", "video", "audio"], "description": "Type of the media" },
+        "themeColor": { "type": "string", "description": "Custom theme color for this post" },
+        "fontFamily": { "type": "string", "description": "Custom font family for this post" },
+        "authorUid": { "type": "string", "description": "UID of the author" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["title", "content", "mediaUrl", "mediaType", "authorUid", "createdAt"]
+    },
+    "settings": {
+      "title": "Site Settings",
+      "description": "Global site settings for customization.",
+      "type": "object",
+      "properties": {
+        "siteTitle": { "type": "string", "description": "Main title of the website" },
+        "mainQuote": { "type": "string", "description": "Emotional quote on the main page" },
+        "themeColor": { "type": "string", "description": "Global theme color" },
+        "fontFamily": { "type": "string", "description": "Global font family" }
+      }
+    }
+  },
+  "firestore": {
+    "/posts/{postId}": {
+      "schema": "post",
+      "description": "Collection of music story posts"
+    },
+    "/settings/global": {
+      "schema": "settings",
+      "description": "Global site settings"
+    }
+  }
+}
